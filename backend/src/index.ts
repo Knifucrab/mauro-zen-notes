@@ -87,35 +87,17 @@ app.get('/api/test-db', async (req, res) => {
   }
 });
 
-// Lazy load routes with database (each route handles its own initialization)
-app.use('/api/auth', async (req, res, next) => {
-  try {
-    const authRoutes = await import('./auth');
-    authRoutes.default(req, res, next);
-  } catch (error) {
-    console.error('Auth route error:', error);
-    res.status(500).json({ error: 'Auth service unavailable' });
-  }
+// Temporary: API routes disabled during Prisma migration
+app.use('/api/auth', (req, res) => {
+  res.json({ message: 'Auth API temporarily disabled during Prisma migration' });
 });
 
-app.use('/api/notes', async (req, res, next) => {
-  try {
-    const noteRoutes = await import('./notes');
-    noteRoutes.default(req, res, next);
-  } catch (error) {
-    console.error('Notes route error:', error);
-    res.status(500).json({ error: 'Notes service unavailable' });
-  }
+app.use('/api/notes', (req, res) => {
+  res.json({ message: 'Notes API temporarily disabled during Prisma migration' });
 });
 
-app.use('/api/tags', async (req, res, next) => {
-  try {
-    const tagRoutes = await import('./tags');
-    tagRoutes.default(req, res, next);
-  } catch (error) {
-    console.error('Tags route error:', error);
-    res.status(500).json({ error: 'Tags service unavailable' });
-  }
+app.use('/api/tags', (req, res) => {
+  res.json({ message: 'Tags API temporarily disabled during Prisma migration' });
 });
 
 // For local development
