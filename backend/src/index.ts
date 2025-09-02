@@ -28,6 +28,26 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Raw MySQL test without TypeORM
+app.get('/api/test-mysql', async (req, res) => {
+  try {
+    const { testRawMysqlConnection } = await import('./mysql-test');
+    const result = await testRawMysqlConnection();
+    
+    res.json({
+      status: result.success ? 'MySQL connected' : 'MySQL failed',
+      ...result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Raw MySQL test failed:', error);
+    res.status(500).json({ 
+      error: 'Raw MySQL test failed', 
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({ 
