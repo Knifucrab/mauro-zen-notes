@@ -3,3 +3,9 @@ node_modules/
 *.log
 dist/
 .env
+**/package-lock.json
+**/yarn.lock
+.git/
+.gitignore
+README.md
+CHALLENGE.md
