@@ -33,3 +33,5 @@ coverage/
 
 # Sqlite
 notes.sqlite
+
+/src/generated/prisma

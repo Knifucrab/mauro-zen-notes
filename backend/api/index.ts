@@ -58,29 +58,29 @@ app.get('/', (req, res) => {
   });
 });
 
-// Test database endpoint with timeout
+// Test database endpoint with Prisma
 app.get('/api/test-db', async (req, res) => {
   const timeout = setTimeout(() => {
     res.status(500).json({ error: 'Database test timeout' });
   }, 25000); // 25 second timeout
 
   try {
-    const { initializeDatabase } = await import('../src/data-source');
-    const dataSource = await initializeDatabase();
+    const { connectDatabase } = await import('../src/prisma-client');
+    const prisma = await connectDatabase();
     
     clearTimeout(timeout);
     
     // Simple test query
-    const result = await dataSource.query('SELECT 1 as test');
+    const result = await prisma.$queryRaw`SELECT 1 as test`;
     
     res.json({
-      status: 'Database connected',
+      status: 'Prisma connected to MySQL',
       test: result,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     clearTimeout(timeout);
-    console.error('Database test failed:', error);
+    console.error('Prisma test failed:', error);
     res.status(500).json({ 
       error: 'Database connection failed', 
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -88,35 +88,17 @@ app.get('/api/test-db', async (req, res) => {
   }
 });
 
-// Lazy load routes with database (each route handles its own initialization)
-app.use('/api/auth', async (req, res, next) => {
-  try {
-    const authRoutes = await import('../src/auth');
-    authRoutes.default(req, res, next);
-  } catch (error) {
-    console.error('Auth route error:', error);
-    res.status(500).json({ error: 'Auth service unavailable' });
-  }
+// Temporary: API routes disabled during Prisma migration
+app.use('/api/auth', (req, res) => {
+  res.json({ message: 'Auth API temporarily disabled during Prisma migration' });
 });
 
-app.use('/api/notes', async (req, res, next) => {
-  try {
-    const noteRoutes = await import('../src/notes');
-    noteRoutes.default(req, res, next);
-  } catch (error) {
-    console.error('Notes route error:', error);
-    res.status(500).json({ error: 'Notes service unavailable' });
-  }
+app.use('/api/notes', (req, res) => {
+  res.json({ message: 'Notes API temporarily disabled during Prisma migration' });
 });
 
-app.use('/api/tags', async (req, res, next) => {
-  try {
-    const tagRoutes = await import('../src/tags');
-    tagRoutes.default(req, res, next);
-  } catch (error) {
-    console.error('Tags route error:', error);
-    res.status(500).json({ error: 'Tags service unavailable' });
-  }
+app.use('/api/tags', (req, res) => {
+  res.json({ message: 'Tags API temporarily disabled during Prisma migration' });
 });
 
 // For local development
