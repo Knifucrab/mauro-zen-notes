@@ -52,8 +52,9 @@ app.get('/api/test-mysql', async (req, res) => {
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'Zen Notes API is running!',
+    message: 'Zen Notes API with Prisma is running!',
     version: '1.0.0',
+    orm: 'Prisma',
     timestamp: new Date().toISOString()
   });
 });
