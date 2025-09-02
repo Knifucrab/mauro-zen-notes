@@ -22,39 +22,66 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Health check endpoint
+// Simple health check that doesn't require database
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    dbConfigured: !!(process.env.DATABASE_URL || process.env.MYSQLHOST)
+  });
 });
 
-// Public routes
-app.use('/auth', authRouter);
+// Middleware to ensure database is initialized for routes that need it
+const ensureDatabase = async (req: any, res: any, next: any) => {
+  try {
+    await initApp();
+    next();
+  } catch (error) {
+    console.error('Database initialization failed:', error);
+    res.status(500).json({ 
+      error: 'Database connection failed', 
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
 
-// Protected routes
-app.use('/notes', authMiddleware, notesRouter);
-app.use('/tags', authMiddleware, tagsRouter);
+// Public routes (with database)
+app.use('/auth', ensureDatabase, authRouter);
+
+// Protected routes (with database)
+app.use('/notes', ensureDatabase, authMiddleware, notesRouter);
+app.use('/tags', ensureDatabase, authMiddleware, tagsRouter);
 
 // Initialize database before handling requests
+let dbInitialized = false;
 const initApp = async () => {
-  try {
-    await initializeDatabase();
-    console.log('Database initialized successfully');
-  } catch (error) {
-    console.error('Failed to initialize database:', error);
+  if (!dbInitialized) {
+    try {
+      await initializeDatabase();
+      dbInitialized = true;
+      console.log('Database initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize database:', error);
+      throw error;
+    }
   }
 };
 
 // For serverless environments (Vercel)
 if (process.env.NODE_ENV === 'production') {
-  // Initialize database for serverless
-  initApp();
+  // Vercel will handle the initialization through middleware
+  console.log('🚀 Running in production/serverless mode');
 } else {
   // For local development
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 3001; // Changed to 3001 to avoid conflicts
   initApp().then(() => {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
+  }).catch((error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   });
 }
 
