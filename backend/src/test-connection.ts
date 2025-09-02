@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { AppDataSource, initializeDatabase } from './data-source';
+import { getDataSource, initializeDatabase } from './data-source';
 
 async function testMySQLConnection() {
   console.log('🔄 Testing MySQL connection to Railway...');
@@ -12,23 +12,23 @@ async function testMySQLConnection() {
   console.log('- Password length:', process.env.MYSQLPASSWORD?.length || 0);
   
   try {
-    await initializeDatabase();
-    console.log('✅ Database connection successful!');
-    
-    // Test a simple query
-    const result = await AppDataSource.query('SELECT 1 as test');
-    console.log('✅ Query test successful:', result);
-    
-    // Show database info
-    const dbInfo = await AppDataSource.query('SELECT DATABASE() as current_db');
-    console.log('✅ Connected to database:', dbInfo);
-    
-    // Check if tables exist
-    const tables = await AppDataSource.query('SHOW TABLES');
-    console.log('📋 Existing tables:', tables);
-    
-    await AppDataSource.destroy();
-    console.log('✅ Test completed successfully!');
+  const dataSource = await getDataSource();
+  console.log('✅ Database connection successful!');
+
+  // Test a simple query
+  const result = await dataSource.query('SELECT 1 as test');
+  console.log('✅ Query test successful:', result);
+
+  // Show database info
+  const dbInfo = await dataSource.query('SELECT DATABASE() as current_db');
+  console.log('✅ Connected to database:', dbInfo);
+
+  // Check if tables exist
+  const tables = await dataSource.query('SHOW TABLES');
+  console.log('📋 Existing tables:', tables);
+
+  await dataSource.destroy();
+  console.log('✅ Test completed successfully!');
     
   } catch (error) {
     console.error('❌ Database connection failed:', error);

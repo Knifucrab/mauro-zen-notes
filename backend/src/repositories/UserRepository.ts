@@ -1,15 +1,20 @@
-import { AppDataSource } from '../data-source';
+import { getDataSource } from '../data-source';
 import { User } from '../entity/User';
 
 export class UserRepository {
-  private repo = AppDataSource.getRepository(User);
+  private async getRepo() {
+    const dataSource = await getDataSource();
+    return dataSource.getRepository(User);
+  }
 
   async findByUsername(username: string) {
-    return this.repo.findOneBy({ username });
+    const repo = await this.getRepo();
+    return repo.findOneBy({ username });
   }
 
   async create(user: Partial<User>) {
-    const newUser = this.repo.create(user);
-    return this.repo.save(newUser);
+    const repo = await this.getRepo();
+    const newUser = repo.create(user);
+    return repo.save(newUser);
   }
 }
