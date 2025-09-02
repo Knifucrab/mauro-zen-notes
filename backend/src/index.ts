@@ -57,29 +57,29 @@ app.get('/', (req, res) => {
   });
 });
 
-// Test database endpoint with timeout
+// Test database endpoint with Prisma
 app.get('/api/test-db', async (req, res) => {
   const timeout = setTimeout(() => {
     res.status(500).json({ error: 'Database test timeout' });
   }, 25000); // 25 second timeout
 
   try {
-    const { initializeDatabase } = await import('./data-source');
-    const dataSource = await initializeDatabase();
+    const { connectDatabase } = await import('./prisma-client');
+    const prisma = await connectDatabase();
     
     clearTimeout(timeout);
     
     // Simple test query
-    const result = await dataSource.query('SELECT 1 as test');
+    const result = await prisma.$queryRaw`SELECT 1 as test`;
     
     res.json({
-      status: 'Database connected',
+      status: 'Prisma connected to MySQL',
       test: result,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     clearTimeout(timeout);
-    console.error('Database test failed:', error);
+    console.error('Prisma test failed:', error);
     res.status(500).json({ 
       error: 'Database connection failed', 
       message: error instanceof Error ? error.message : 'Unknown error'
