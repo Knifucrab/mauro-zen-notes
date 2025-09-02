@@ -46,8 +46,8 @@ const initApp = async () => {
 
 // For serverless environments (Vercel)
 if (process.env.NODE_ENV === 'production') {
+  // Initialize database for serverless
   initApp();
-  module.exports = app;
 } else {
   // For local development
   const PORT = process.env.PORT || 3000;
@@ -57,3 +57,6 @@ if (process.env.NODE_ENV === 'production') {
     });
   });
 }
+
+// Export for Vercel
+export default app;
