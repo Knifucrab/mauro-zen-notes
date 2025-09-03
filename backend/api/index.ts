@@ -4,45 +4,9 @@ import 'dotenv/config';
 
 const app = express();
 
-
-// CORS configuration - MUST be first middleware
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://mauro-zen-notes.vercel.app',
-  'https://mauro-zen-notes-frontend.vercel.app'
-];
-app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'), false);
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-// Explicit OPTIONS handler for CORS preflight
-app.options('*', cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-app.use(express.json());
-
-// Health check endpoint (no database required)
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    timestamp: new Date().toISOString(),
-    env: process.env.NODE_ENV || 'development',
-    hasDbUrl: !!process.env.DATABASE_URL,
+// Allow all origins, all methods, all headers (open CORS)
+app.use(cors());
+app.options('*', cors());
     hasHost: !!process.env.MYSQLHOST
   });
 });
