@@ -7,6 +7,13 @@ const app = express();
 // Allow all origins, all methods, all headers (open CORS)
 app.use(cors());
 app.options('*', cors());
+// Health check endpoint (no database required)
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV || 'development',
+    hasDbUrl: !!process.env.DATABASE_URL,
     hasHost: !!process.env.MYSQLHOST
   });
 });
