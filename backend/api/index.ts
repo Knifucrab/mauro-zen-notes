@@ -78,18 +78,15 @@ app.get('/api/test-db', async (req, res) => {
   }
 });
 
-// Temporary: API routes disabled during Prisma migration
-app.use('/api/auth', (req, res) => {
-  res.json({ message: 'Auth API temporarily disabled during Prisma migration' });
-});
 
-app.use('/api/notes', (req, res) => {
-  res.json({ message: 'Notes API temporarily disabled during Prisma migration' });
-});
+// Restore real API routes
+const AuthController = require('./controllers/AuthController');
+const NoteController = require('./controllers/NoteController');
+const TagController = require('./controllers/TagController');
 
-app.use('/api/tags', (req, res) => {
-  res.json({ message: 'Tags API temporarily disabled during Prisma migration' });
-});
+app.use('/api/auth', AuthController);
+app.use('/api/notes', NoteController);
+app.use('/api/tags', TagController);
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
