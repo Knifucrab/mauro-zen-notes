@@ -46,7 +46,7 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
 
 export async function setupDefaultUser(): Promise<void> {
   const apiUrl = await getApiUrl();
-  const response = await fetch(`${apiUrl}/auth/setup-default-user`, {
+  const response = await fetch(`${apiUrl}/api/auth/setup-default-user`, {
     method: 'POST',
   });
 

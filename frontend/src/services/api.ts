@@ -29,7 +29,7 @@ export async function getApiUrl(): Promise<string> {
 
 export async function getNotes() {
   const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/notes`, {
+  const res = await fetch(`${apiUrl}/api/notes`, {
     headers: getAuthHeaders()
   });
   return res.json();
@@ -38,7 +38,7 @@ export async function getNotes() {
 
 export async function getNote(id: number) {
   const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/notes/${id}`, {
+  const res = await fetch(`${apiUrl}/api/notes/${id}`, {
     headers: getAuthHeaders()
   });
   return res.json();
@@ -48,7 +48,7 @@ export async function getNote(id: number) {
 export async function createNote(title: string, description: string, tags: Tag[] = []) {
   const apiUrl = await getApiUrl();
   const tagIds = tags.map(tag => tag.id);
-  const res = await fetch(`${apiUrl}/notes`, {
+  const res = await fetch(`${apiUrl}/api/notes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ title, description, tagIds })
@@ -60,7 +60,7 @@ export async function createNote(title: string, description: string, tags: Tag[]
 export async function updateNote(id: number, title: string, description: string) {
   const apiUrl = await getApiUrl();
   // First update the note content
-  const res = await fetch(`${apiUrl}/notes/${id}`, {
+  const res = await fetch(`${apiUrl}/api/notes/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ title, description })
@@ -74,7 +74,7 @@ export async function updateNote(id: number, title: string, description: string)
 
 export async function addTagToNote(noteId: number, tagId: number) {
   const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/notes/${noteId}/tags`, {
+  const res = await fetch(`${apiUrl}/api/notes/${noteId}/tags`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ tagId })
@@ -85,7 +85,7 @@ export async function addTagToNote(noteId: number, tagId: number) {
 
 export async function removeTagFromNote(noteId: number, tagId: number) {
   const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/notes/${noteId}/tags/${tagId}`, {
+  const res = await fetch(`${apiUrl}/api/notes/${noteId}/tags/${tagId}`, {
     method: 'DELETE',
     headers: getAuthHeaders()
   });
@@ -116,7 +116,7 @@ export async function createTag(name: string, color: string) {
 
 export async function deleteNote(id: number) {
   const apiUrl = await getApiUrl();
-  await fetch(`${apiUrl}/notes/${id}`, { 
+  await fetch(`${apiUrl}/api/notes/${id}`, { 
     method: 'DELETE',
     headers: getAuthHeaders()
   });
@@ -125,7 +125,7 @@ export async function deleteNote(id: number) {
 
 export async function archiveNote(id: number) {
   const apiUrl = await getApiUrl();
-  await fetch(`${apiUrl}/notes/${id}/archive`, { 
+  await fetch(`${apiUrl}/api/notes/${id}/archive`, { 
     method: 'POST',
     headers: getAuthHeaders()
   });
@@ -134,7 +134,7 @@ export async function archiveNote(id: number) {
 
 export async function unarchiveNote(id: number) {
   const apiUrl = await getApiUrl();
-  await fetch(`${apiUrl}/notes/${id}/unarchive`, { 
+  await fetch(`${apiUrl}/api/notes/${id}/unarchive`, { 
     method: 'POST',
     headers: getAuthHeaders()
   });
