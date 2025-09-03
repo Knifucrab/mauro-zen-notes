@@ -80,13 +80,10 @@ app.get('/api/test-db', async (req, res) => {
 
 
 // Restore real API routes
-const AuthController = require('./controllers/AuthController');
-const NoteController = require('./controllers/NoteController');
-const TagController = require('./controllers/TagController');
 
-app.use('/api/auth', AuthController);
-app.use('/api/notes', NoteController);
-app.use('/api/tags', TagController);
+// Use compiled notes router for /api/notes
+const notesRouter = require('./notes');
+app.use('/api/notes', notesRouter);
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
