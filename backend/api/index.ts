@@ -82,11 +82,37 @@ app.get('/api/test-db', async (req, res) => {
 // Restore real API routes
 
 // Use compiled routers for /api/notes, /api/auth, /api/tags
-const notesRouter = require('./notes');
-const authRouter = require('./auth');
-const tagsRouter = require('./tags');
+const { NoteController } = require('./NoteController');
+const { AuthController } = require('./AuthController');
+const { TagController } = require('./TagController');
+
+// Notes routes
+const notesRouter = express.Router();
+notesRouter.get('/', NoteController.getAll);
+notesRouter.get('/:id', NoteController.getOne);
+notesRouter.post('/', NoteController.create);
+notesRouter.put('/:id', NoteController.update);
+notesRouter.delete('/:id', NoteController.delete);
+notesRouter.post('/:id/archive', NoteController.archive);
+notesRouter.post('/:id/unarchive', NoteController.unarchive);
+notesRouter.post('/:id/tags', NoteController.addTag);
+notesRouter.delete('/:id/tags/:tagId', NoteController.removeTag);
 app.use('/api/notes', notesRouter);
+
+// Auth routes
+const authRouter = express.Router();
+authRouter.post('/login', AuthController.login);
+authRouter.post('/register', AuthController.register);
+authRouter.post('/setup-default-user', AuthController.setupDefaultUser);
 app.use('/api/auth', authRouter);
+
+// Tags routes
+const tagsRouter = express.Router();
+tagsRouter.get('/', TagController.getAll);
+tagsRouter.get('/:id', TagController.getOne);
+tagsRouter.post('/', TagController.create);
+tagsRouter.put('/:id', TagController.update);
+tagsRouter.delete('/:id', TagController.delete);
 app.use('/api/tags', tagsRouter);
 
 // For local development
