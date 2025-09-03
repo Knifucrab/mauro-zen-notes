@@ -4,13 +4,31 @@ import 'dotenv/config';
 
 const app = express();
 
-// CORS configuration
+
+// CORS configuration - MUST be first middleware
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://mauro-zen-notes.vercel.app',
+  'https://mauro-zen-notes-frontend.vercel.app'
+];
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://mauro-zen-notes.vercel.app',
-    'https://mauro-zen-notes-frontend.vercel.app'
-  ],
+  origin: function(origin, callback) {
+    // allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'), false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Explicit OPTIONS handler for CORS preflight
+app.options('*', cors({
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
