@@ -1,7 +1,7 @@
 // Express router for notes API (using compiled controller)
 const express = require('express');
 const router = express.Router();
-const { NoteController } = require('../dist/controllers/NoteController');
+const { NoteController } = require('./NoteController');
 
 router.get('/', NoteController.getAll);
 router.get('/:id', NoteController.getOne);
