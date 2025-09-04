@@ -9,7 +9,16 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.js",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
@@ -24,10 +33,6 @@
           "value": "Content-Type, Authorization"
         }
       ]
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
     }
   ],
   "env": {
