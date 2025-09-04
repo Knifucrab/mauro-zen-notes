@@ -41,9 +41,9 @@ export async function getNotes() {
     title: note.title,
     description: note.content, // map content to description
     creationDate: note.createdAt, // map createdAt to creationDate
-    archived: false, // backend does not support archive
+    archived: note.archived || false, // now backend supports archive
     expanded: false,
-    tags: [] // backend does not support tags
+    tags: note.tags || [] // now backend supports tags
   }));
 }
 
@@ -60,7 +60,6 @@ export async function getNote(id: number) {
 
 export async function createNote(title: string, description: string, tags: Tag[] = []) {
   const apiUrl = await getApiUrl();
-  // Only send title and content, ignore tags
   const res = await fetch(`${apiUrl}/api/notes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
@@ -73,7 +72,6 @@ export async function createNote(title: string, description: string, tags: Tag[]
 
 export async function updateNote(id: number, title: string, description: string) {
   const apiUrl = await getApiUrl();
-  // Only update title and content
   const res = await fetch(`${apiUrl}/api/notes/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
@@ -83,12 +81,12 @@ export async function updateNote(id: number, title: string, description: string)
 }
 
 
+// Fix addTagToNote to match new backend route
 export async function addTagToNote(noteId: number, tagId: number) {
   const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/api/notes/${noteId}/tags`, {
+  const res = await fetch(`${apiUrl}/api/notes/${noteId}/tags/${tagId}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ tagId })
+    headers: getAuthHeaders()
   });
   return res.json();
 }
@@ -104,7 +102,47 @@ export async function removeTagFromNote(noteId: number, tagId: number) {
 }
 
 
-// The backend does not support tags or archive endpoints, so these are removed.
+// TAG MANAGEMENT
+
+// Get all tags (public)
+export async function getTags() {
+  const apiUrl = await getApiUrl();
+  const res = await fetch(`${apiUrl}/api/tags`);
+  return res.json();
+}
+
+// Create a tag (protected)
+export async function createTag(name: string, color: string) {
+  const apiUrl = await getApiUrl();
+  const res = await fetch(`${apiUrl}/api/tags`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify({ name, color })
+  });
+  return res.json();
+}
+
+// NOTE ARCHIVING
+
+// Archive a note (protected)
+export async function archiveNote(noteId: number) {
+  const apiUrl = await getApiUrl();
+  const res = await fetch(`${apiUrl}/api/notes/${noteId}/archive`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  return res.json();
+}
+
+// Unarchive a note (protected)
+export async function unarchiveNote(noteId: number) {
+  const apiUrl = await getApiUrl();
+  const res = await fetch(`${apiUrl}/api/notes/${noteId}/unarchive`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  return res.json();
+}
 
 export async function deleteNote(id: number) {
   const apiUrl = await getApiUrl();
