@@ -27,12 +27,15 @@ export async function getApiUrl(): Promise<string> {
 }
 
 
+
 export async function getNotes() {
   const apiUrl = await getApiUrl();
   const res = await fetch(`${apiUrl}/api/notes`, {
     headers: getAuthHeaders()
   });
-  return res.json();
+  const response = await res.json();
+  // Return the notes array from the 'data' property
+  return response.data;
 }
 
 

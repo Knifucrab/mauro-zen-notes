@@ -16,14 +16,16 @@ function LoginPage() {
     setError('');
     setHasLoginError(false);
     setIsLoading(true);
-
+    console.log('Login form submitted', { username, password });
     try {
       const response = await apiLogin({ username, password });
-      setStoredToken(response.token);
-      login(response.token, response.user);
+      console.log('Login API response:', response);
+  setStoredToken(response.token);
+  login(response.token, response.user);
     } catch (err) {
       setHasLoginError(true);
       setError('Username or password incorrect');
+      console.error('Login error:', err);
     } finally {
       setIsLoading(false);
     }
