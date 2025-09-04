@@ -72,11 +72,16 @@ export async function createNote(title: string, description: string, tags: Tag[]
   // If tags are provided and note was created successfully, add tags to the note
   if (tags.length > 0 && noteResponse.data) {
     const noteId = noteResponse.data.id;
+    console.log(`Attempting to add ${tags.length} tags to note ${noteId}`);
+    
     for (const tag of tags) {
       try {
+        console.log(`Adding tag ${tag.id} (${tag.name}) to note ${noteId}`);
         await addTagToNote(noteId, tag.id);
+        console.log(`Successfully added tag ${tag.id} to note ${noteId}`);
       } catch (error) {
         console.error(`Failed to add tag ${tag.id} to note ${noteId}:`, error);
+        // Continue with other tags even if one fails
       }
     }
   }
@@ -136,24 +141,37 @@ export async function getTags() {
     const res = await fetch(`${apiUrl}/api/tags`);
     if (!res.ok) {
       console.error('Failed to fetch tags:', res.status);
-      return { data: [] }; // Return empty array if tags endpoint doesn't exist
+      return []; // Return empty array if tags endpoint doesn't exist
     }
-    return res.json();
+    const response = await res.json();
+    // Return the tags array, handle both {data: [...]} and direct array responses
+    return response.data || response || [];
   } catch (error) {
     console.error('Error fetching tags:', error);
-    return { data: [] }; // Return empty array on error
+    return []; // Return empty array on error
   }
 }
 
-// Create a tag (protected)
+// Create a tag (protected) - with proper response handling
 export async function createTag(name: string, color: string) {
   const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/api/tags`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ name, color })
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${apiUrl}/api/tags`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ name, color })
+    });
+    if (!res.ok) {
+      console.error('Failed to create tag:', res.status);
+      throw new Error(`Create tag failed: ${res.status}`);
+    }
+    const response = await res.json();
+    console.log('Tag created successfully:', response);
+    return response;
+  } catch (error) {
+    console.error('Error creating tag:', error);
+    throw error;
+  }
 }
 
 // NOTE ARCHIVING

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MdAdd, MdClose } from 'react-icons/md';
 import type { Tag } from '../types/Tag';
-import { DEFAULT_TAGS } from '../utils/tagUtils';
 import { createTag, getTags } from '../services/api';
 import TagDisplay from './TagDisplay';
 
@@ -22,17 +21,20 @@ function TagSelector({ selectedTags, onTagsChange, maxTags = 4 }: TagSelectorPro
     const fetchTags = async () => {
       try {
         const tags = await getTags();
-        setAvailableTagsFromAPI(tags);
+        console.log('Fetched tags from API:', tags);
+        // Ensure tags is always an array
+        const tagsArray = Array.isArray(tags) ? tags : [];
+        setAvailableTagsFromAPI(tagsArray);
       } catch (error) {
-        console.error('Failed to fetch tags from API, using defaults:', error);
-        setAvailableTagsFromAPI(DEFAULT_TAGS);
+        console.error('Failed to fetch tags from API:', error);
+        setAvailableTagsFromAPI([]); // Use empty array instead of DEFAULT_TAGS
       }
     };
     fetchTags();
   }, []);
 
-  // Use API tags if available, otherwise fall back to defaults
-  const allAvailableTags = availableTagsFromAPI.length > 0 ? availableTagsFromAPI : DEFAULT_TAGS;
+  // Only use API tags, don't fall back to DEFAULT_TAGS since they have wrong IDs
+  const allAvailableTags = availableTagsFromAPI;
   
   const availableTags = allAvailableTags.filter(
     tag => !selectedTags.some(selected => selected.id === tag.id)
