@@ -9,7 +9,11 @@ export interface LoginCredentials {
   password: string;
 }
 
+
 export interface AuthResponse {
-  token: string;
-  user: User;
+  message: string;
+  data: {
+    token: string;
+    user: User;
+  };
 }
