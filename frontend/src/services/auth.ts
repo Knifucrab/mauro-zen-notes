@@ -146,7 +146,9 @@ export function getStoredToken(): string | null {
   return localStorage.getItem('authToken');
 }
 
+
 export function setStoredToken(token: string): void {
+  console.log('[setStoredToken] Saving token to localStorage:', token);
   localStorage.setItem('authToken', token);
 }
 
@@ -154,7 +156,9 @@ export function removeStoredToken(): void {
   localStorage.removeItem('authToken');
 }
 
+
 export function getAuthHeaders(): Record<string, string> {
   const token = getStoredToken();
+  console.log('[getAuthHeaders] Token from localStorage:', token);
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
