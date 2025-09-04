@@ -68,7 +68,8 @@
                   "value": "Content-Type, Authorization"
                 }
               ]
-            },
+            }
+            ,
             {
               "src": "/(.*)",
               "dest": "/api/index.js"
