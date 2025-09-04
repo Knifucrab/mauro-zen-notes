@@ -9,27 +9,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "DATABASE_URL": "@database_url",
-    "JWT_SECRET": "@jwt_secret",
-    "FRONTEND_URL": "@frontend_url"
-  },
-  "build": {
-    "env": {
-      "DATABASE_URL": "@database_url"
-    }
-  },
-  "headers": [
-    {
-      "source": "/api/(.*)",
+      "dest": "/api/index.js",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
@@ -42,47 +22,22 @@
         {
           "key": "Access-Control-Allow-Headers",
           "value": "Content-Type, Authorization"
-        {
-          "version": 2,
-          "functions": {
-            "api/index.js": {
-              "runtime": "@vercel/node",
-              "maxDuration": 10
-            }
-          },
-          "routes": [
-            {
-              "src": "/api/(.*)",
-              "dest": "/api/index.js",
-              "headers": [
-                {
-                  "key": "Access-Control-Allow-Origin",
-                  "value": "https://mauro-zen-notes-frontend.vercel.app"
-                },
-                {
-                  "key": "Access-Control-Allow-Methods",
-                  "value": "GET, POST, PUT, DELETE, OPTIONS"
-                },
-                {
-                  "key": "Access-Control-Allow-Headers",
-                  "value": "Content-Type, Authorization"
-                }
-              ]
-            }
-            ,
-            {
-              "src": "/(.*)",
-              "dest": "/api/index.js"
-            }
-          ],
-          "env": {
-            "DATABASE_URL": "@database_url",
-            "JWT_SECRET": "@jwt_secret",
-            "FRONTEND_URL": "@frontend_url"
-          },
-          "build": {
-            "env": {
-              "DATABASE_URL": "@database_url"
-            }
-          }
         }
+      ]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
+    }
+  ],
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "JWT_SECRET": "@jwt_secret",
+    "FRONTEND_URL": "@frontend_url"
+  },
+  "build": {
+    "env": {
+      "DATABASE_URL": "@database_url"
+    }
+  }
+}
