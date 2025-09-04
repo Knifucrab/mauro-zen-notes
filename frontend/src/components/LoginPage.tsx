@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { login as apiLogin, setupDefaultUser, setStoredToken } from '../services/auth';
+import { login as apiLogin, createDefaultUser, setStoredToken } from '../services/auth';
 import { useAuth } from '../hooks/useAuth';
 import NotebookModel from './NotebookModel';
 
@@ -35,7 +35,7 @@ function LoginPage() {
     setIsLoading(true);
 
     try {
-      await setupDefaultUser();
+  await createDefaultUser();
       setError('Default user created successfully! You can now login with admin/password123');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to setup default user');
