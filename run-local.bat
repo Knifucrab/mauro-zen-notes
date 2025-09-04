@@ -1,50 +1,118 @@
 @echo off
+setlocal enabledelayedexpansion
 
-echo Starting Full Stack Notes Application...
+title Starting Notes Application
 
-where node >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    echo Node.js not found. Install Node.js first.
-    pause
-    exit /b 1
+echo.
+echo ========================================
+echo   STARTING NOTES APPLICATION
+echo ========================================
+echo.
+
+REM Get the directory where the batch file is located
+set "PROJECT_DIR=%~dp0"
+
+REM Check Node.js
+echo [1/5] Checking Node.js installation...
+where node >nul 2>&1
+if errorlevel 1 (
+    echo ERROR: Node.js not found. Please install Node.js first.
+    echo Download from: https://nodejs.org
+    echo Press any key to continue...
+    pause >nul
+    goto :eof
 )
+echo Node.js found!
 
-where npm >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    echo npm not found. Install npm first.
-    pause
-    exit /b 1
+REM Check npm
+echo [2/5] Checking npm installation...
+where npm >nul 2>&1
+if errorlevel 1 (
+    echo ERROR: npm not found. Please install npm first.
+    echo Press any key to continue...
+    pause >nul
+    goto :eof
 )
+echo npm found!
 
-echo Installing dependencies...
+echo.
+echo [3/5] Installing dependencies...
 
-cd backend
+REM Install backend dependencies
+echo Installing backend dependencies...
+cd /d "%PROJECT_DIR%backend"
 if not exist node_modules (
+    echo Running npm install in backend...
     call npm install
+    if errorlevel 1 (
+        echo ERROR: Failed to install backend dependencies
+        pause
+        goto :eof
+    )
+) else (
+    echo Backend dependencies already installed
 )
 
-cd ..\frontend
+REM Install frontend dependencies
+echo Installing frontend dependencies...
+cd /d "%PROJECT_DIR%frontend"
 if not exist node_modules (
+    echo Running npm install in frontend...
     call npm install
+    if errorlevel 1 (
+        echo ERROR: Failed to install frontend dependencies
+        pause
+        goto :eof
+    )
+) else (
+    echo Frontend dependencies already installed
 )
 
-cd ..
+echo.
+echo [4/5] Setting up database...
+cd /d "%PROJECT_DIR%backend"
+if exist "package.json" (
+    findstr /c:"setup-db" package.json >nul
+    if not errorlevel 1 (
+        echo Setting up database...
+        call npm run setup-db
+    ) else (
+        echo No database setup script found, skipping...
+    )
+)
 
-echo Setting up database...
-cd backend
-call npm run setup-db
+echo.
+echo [5/5] Starting servers...
+echo.
+echo Backend will be available at: http://localhost:3000
+echo Frontend will be available at: http://localhost:5173
+echo.
 
-echo Starting servers...
-echo Backend: http://localhost:3000
-echo Frontend: http://localhost:5173
+REM Start backend server
+echo Starting backend server...
+cd /d "%PROJECT_DIR%backend"
+start "Notes App - Backend Server" cmd /k "echo Backend Server Starting... && npm run dev"
 
-cd backend
-start "Backend" cmd /k "npm run dev"
-
+REM Wait 3 seconds for backend to start
+echo Waiting 3 seconds for backend to initialize...
 timeout /t 3 /nobreak >nul
 
-cd ..\frontend
-start "Frontend" cmd /k "npm run dev"
+REM Start frontend server
+echo Starting frontend server...
+cd /d "%PROJECT_DIR%frontend"
+start "Notes App - Frontend Server" cmd /k "echo Frontend Server Starting... && npm run dev"
 
-echo Applications started. Open http://localhost:5173
-pause
+echo.
+echo ========================================
+echo   APPLICATIONS STARTED SUCCESSFULLY!
+echo ========================================
+echo.
+echo Backend: http://localhost:3000
+echo Frontend: http://localhost:5173
+echo.
+echo Open your browser and go to: http://localhost:5173
+echo.
+echo To stop the servers, close the terminal windows that opened.
+echo.
+echo Press any key to exit this launcher...
+pause >nul
