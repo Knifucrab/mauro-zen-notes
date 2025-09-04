@@ -60,12 +60,28 @@ export async function getNote(id: number) {
 
 export async function createNote(title: string, description: string, tags: Tag[] = []) {
   const apiUrl = await getApiUrl();
+  
+  // First create the note
   const res = await fetch(`${apiUrl}/api/notes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ title, content: description })
   });
-  return res.json();
+  const noteResponse = await res.json();
+  
+  // If tags are provided and note was created successfully, add tags to the note
+  if (tags.length > 0 && noteResponse.data) {
+    const noteId = noteResponse.data.id;
+    for (const tag of tags) {
+      try {
+        await addTagToNote(noteId, tag.id);
+      } catch (error) {
+        console.error(`Failed to add tag ${tag.id} to note ${noteId}:`, error);
+      }
+    }
+  }
+  
+  return noteResponse;
 }
 
 
@@ -81,14 +97,23 @@ export async function updateNote(id: number, title: string, description: string)
 }
 
 
-// Fix addTagToNote to match new backend route
+// Fix addTagToNote to match new backend route - with error handling
 export async function addTagToNote(noteId: number, tagId: number) {
   const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/api/notes/${noteId}/tags/${tagId}`, {
-    method: 'POST',
-    headers: getAuthHeaders()
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${apiUrl}/api/notes/${noteId}/tags/${tagId}`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      console.error('Failed to add tag to note:', res.status);
+      throw new Error(`Add tag failed: ${res.status}`);
+    }
+    return res.json();
+  } catch (error) {
+    console.error('Error adding tag to note:', error);
+    throw error;
+  }
 }
 
 
@@ -104,11 +129,20 @@ export async function removeTagFromNote(noteId: number, tagId: number) {
 
 // TAG MANAGEMENT
 
-// Get all tags (public)
+// Get all tags (public) - with error handling
 export async function getTags() {
   const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/api/tags`);
-  return res.json();
+  try {
+    const res = await fetch(`${apiUrl}/api/tags`);
+    if (!res.ok) {
+      console.error('Failed to fetch tags:', res.status);
+      return { data: [] }; // Return empty array if tags endpoint doesn't exist
+    }
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+    return { data: [] }; // Return empty array on error
+  }
 }
 
 // Create a tag (protected)
@@ -124,14 +158,23 @@ export async function createTag(name: string, color: string) {
 
 // NOTE ARCHIVING
 
-// Archive a note (protected)
+// Archive a note (protected) - with error handling
 export async function archiveNote(noteId: number) {
   const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/api/notes/${noteId}/archive`, {
-    method: 'POST',
-    headers: getAuthHeaders()
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${apiUrl}/api/notes/${noteId}/archive`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      console.error('Failed to archive note:', res.status);
+      throw new Error(`Archive failed: ${res.status}`);
+    }
+    return res.json();
+  } catch (error) {
+    console.error('Error archiving note:', error);
+    throw error;
+  }
 }
 
 // Unarchive a note (protected)

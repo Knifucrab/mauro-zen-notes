@@ -179,6 +179,22 @@ class NoteService {
       tagId
     });
   }
+
+  async archiveNote(id, userId) {
+    // Check if note exists and belongs to user
+    const note = await noteRepository.findById(id, userId);
+    if (!note) throw new Error('Note not found');
+    if (note.archived) throw new Error('Note is already archived');
+    return await noteRepository.archiveNote(id, userId);
+  }
+
+  async unarchiveNote(id, userId) {
+    // Check if note exists and belongs to user
+    const note = await noteRepository.findById(id, userId);
+    if (!note) throw new Error('Note not found');
+    if (!note.archived) throw new Error('Note is not archived');
+    return await noteRepository.unarchiveNote(id, userId);
+  }
 }
 
 module.exports = { NoteService: new NoteService() };

@@ -23,4 +23,8 @@ router.delete('/:id/tags/:tagId', NoteController.removeTagFromNote);
 // Get notes by tag
 router.get('/by-tag/:tagId', NoteController.getNotesByTag);
 
+// Archive/unarchive note
+router.post('/:id/archive', NoteController.archiveNote);
+router.post('/:id/unarchive', NoteController.unarchiveNote);
+
 module.exports = router;

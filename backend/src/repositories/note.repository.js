@@ -266,6 +266,28 @@ class NoteRepository {
       recentCount
     };
   }
+
+  async archiveNote(id, userId) {
+    return await prisma.note.update({
+      where: { id, userId },
+      data: { archived: true },
+      include: {
+        tags: { select: { id: true, name: true, color: true } },
+        user: { select: { id: true, username: true } }
+      }
+    });
+  }
+
+  async unarchiveNote(id, userId) {
+    return await prisma.note.update({
+      where: { id, userId },
+      data: { archived: false },
+      include: {
+        tags: { select: { id: true, name: true, color: true } },
+        user: { select: { id: true, username: true } }
+      }
+    });
+  }
 }
 
 module.exports = new NoteRepository();

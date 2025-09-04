@@ -322,6 +322,42 @@ class NoteController {
       });
     }
   }
+
+  async archiveNote(req, res) {
+    try {
+      const userId = req.user.id;
+      const { id } = req.params;
+      const note = await NoteService.archiveNote(id, userId);
+      res.json({ message: 'Note archived successfully', data: note });
+    } catch (error) {
+      console.error('Archive note error:', error);
+      if (error.message === 'Note not found') {
+        return res.status(404).json({ error: 'Not Found', message: error.message });
+      }
+      if (error.message === 'Note is already archived') {
+        return res.status(409).json({ error: 'Conflict', message: error.message });
+      }
+      res.status(500).json({ error: 'Internal Server Error', message: 'Failed to archive note' });
+    }
+  }
+
+  async unarchiveNote(req, res) {
+    try {
+      const userId = req.user.id;
+      const { id } = req.params;
+      const note = await NoteService.unarchiveNote(id, userId);
+      res.json({ message: 'Note unarchived successfully', data: note });
+    } catch (error) {
+      console.error('Unarchive note error:', error);
+      if (error.message === 'Note not found') {
+        return res.status(404).json({ error: 'Not Found', message: error.message });
+      }
+      if (error.message === 'Note is not archived') {
+        return res.status(409).json({ error: 'Conflict', message: error.message });
+      }
+      res.status(500).json({ error: 'Internal Server Error', message: 'Failed to unarchive note' });
+    }
+  }
 }
 
 module.exports = new NoteController();

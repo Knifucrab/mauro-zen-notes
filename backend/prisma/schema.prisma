@@ -30,6 +30,7 @@ model Note {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   tags        Tag[]
+  archived    Boolean  @default(false)
 
   @@map("notes")
 }
