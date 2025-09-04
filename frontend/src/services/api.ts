@@ -28,14 +28,23 @@ export async function getApiUrl(): Promise<string> {
 
 
 
+
 export async function getNotes() {
   const apiUrl = await getApiUrl();
   const res = await fetch(`${apiUrl}/api/notes`, {
     headers: getAuthHeaders()
   });
   const response = await res.json();
-  // Return the notes array from the 'data' property
-  return response.data;
+  // Map backend fields to frontend fields
+  return (response.data || []).map((note: any) => ({
+    id: note.id,
+    title: note.title,
+    description: note.content, // map content to description
+    creationDate: note.createdAt, // map createdAt to creationDate
+    archived: false, // backend does not support archive
+    expanded: false,
+    tags: [] // backend does not support tags
+  }));
 }
 
 
@@ -48,29 +57,28 @@ export async function getNote(id: number) {
 }
 
 
+
 export async function createNote(title: string, description: string, tags: Tag[] = []) {
   const apiUrl = await getApiUrl();
-  const tagIds = tags.map(tag => tag.id);
+  // Only send title and content, ignore tags
   const res = await fetch(`${apiUrl}/api/notes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ title, description, tagIds })
+    body: JSON.stringify({ title, content: description })
   });
   return res.json();
 }
 
 
+
 export async function updateNote(id: number, title: string, description: string) {
   const apiUrl = await getApiUrl();
-  // First update the note content
+  // Only update title and content
   const res = await fetch(`${apiUrl}/api/notes/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ title, description })
+    body: JSON.stringify({ title, content: description })
   });
-  // Then handle tag updates - this is a simplified approach
-  // In a real app, you'd want to calculate which tags to add/remove
-  // For now, we'll just return the response and handle tags separately if needed
   return res.json();
 }
 
@@ -95,50 +103,13 @@ export async function removeTagFromNote(noteId: number, tagId: number) {
   return res.json();
 }
 
-// Tag management functions
 
-export async function getTags() {
-  const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/tags`, {
-    headers: getAuthHeaders()
-  });
-  return res.json();
-}
-
-
-export async function createTag(name: string, color: string) {
-  const apiUrl = await getApiUrl();
-  const res = await fetch(`${apiUrl}/tags`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ name, color })
-  });
-  return res.json();
-}
-
+// The backend does not support tags or archive endpoints, so these are removed.
 
 export async function deleteNote(id: number) {
   const apiUrl = await getApiUrl();
   await fetch(`${apiUrl}/api/notes/${id}`, { 
     method: 'DELETE',
-    headers: getAuthHeaders()
-  });
-}
-
-
-export async function archiveNote(id: number) {
-  const apiUrl = await getApiUrl();
-  await fetch(`${apiUrl}/api/notes/${id}/archive`, { 
-    method: 'POST',
-    headers: getAuthHeaders()
-  });
-}
-
-
-export async function unarchiveNote(id: number) {
-  const apiUrl = await getApiUrl();
-  await fetch(`${apiUrl}/api/notes/${id}/unarchive`, { 
-    method: 'POST',
     headers: getAuthHeaders()
   });
 }
