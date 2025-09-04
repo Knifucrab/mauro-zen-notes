@@ -25,9 +25,10 @@ export async function getApiUrl(): Promise<string> {
 }
 
 
+
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
   const apiUrl = await getApiUrl();
-  const response = await fetch(`${apiUrl}/auth/login`, {
+  const response = await fetch(`${apiUrl}/api/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -44,15 +45,100 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
 }
 
 
-export async function setupDefaultUser(): Promise<void> {
+
+export async function createDefaultUser(): Promise<void> {
   const apiUrl = await getApiUrl();
-  const response = await fetch(`${apiUrl}/api/auth/setup-default-user`, {
+  const response = await fetch(`${apiUrl}/api/auth/create-default-user`, {
     method: 'POST',
   });
-
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to setup default user');
+    throw new Error(error.message || 'Failed to create default user');
+  }
+}
+
+export async function register(credentials: LoginCredentials): Promise<AuthResponse> {
+  const apiUrl = await getApiUrl();
+  const response = await fetch(`${apiUrl}/api/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(credentials),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Registration failed');
+  }
+  return response.json();
+}
+
+
+export interface UserProfile {
+  id: number;
+  username: string;
+  // Add more fields as needed based on backend response
+}
+
+export async function getProfile(): Promise<UserProfile> {
+  const apiUrl = await getApiUrl();
+  const response = await fetch(`${apiUrl}/api/auth/profile`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch profile');
+  }
+  return response.json();
+}
+
+
+export async function updateProfile(profile: Partial<UserProfile>): Promise<UserProfile> {
+  const apiUrl = await getApiUrl();
+  const response = await fetch(`${apiUrl}/api/auth/profile`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify(profile),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update profile');
+  }
+  return response.json();
+}
+
+export async function changePassword(oldPassword: string, newPassword: string): Promise<void> {
+  const apiUrl = await getApiUrl();
+  const response = await fetch(`${apiUrl}/api/auth/change-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify({ oldPassword, newPassword }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to change password');
+  }
+}
+
+export async function refreshToken(refreshToken: string): Promise<AuthResponse> {
+  const apiUrl = await getApiUrl();
+  const response = await fetch(`${apiUrl}/api/auth/refresh-token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to refresh token');
+  }
+  return response.json();
+}
+
+export async function logout(): Promise<void> {
+  const apiUrl = await getApiUrl();
+  const response = await fetch(`${apiUrl}/api/auth/logout`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to logout');
   }
 }
 
